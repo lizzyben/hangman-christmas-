@@ -88,6 +88,11 @@
             transition: background-color 0.3s ease-in-out;
         }
 
+        .guessed {
+            background-color: #ff6347; /* Tomato color */
+            color: #fff;
+        }
+
         #guesses-left {
             font-size: 18px;
             margin-top: 20px;
@@ -107,12 +112,14 @@
             "SANTA", "REINDEER", "ORNAMENT", "GIFT", "JINGLE", "SNOWFLAKE", "CANDLE",
             "BELLS", "CHRISTMAS", "DECORATION", "ELF", "MISTLETOE", "NORTHPOLE", "PRESENT",
             "SNOWMAN", "SLEIGH", "TREE", "WREATH", "FROSTY", "GRINCH", "CHIMNEY", "CAROL",
-            "NUTCRACKER", "COCOA", "LIGHTS", "COOKIE", "SWEATER", "ICICLE", "HOLLY"
+            "NUTCRACKER", "COCOA", "LIGHTS", "COOKIE", "SWEATER", "ICICLE", "HOLLY",
+            "MERRY", "GARLAND", "GREETINGS", "RUDOLPH", "FESTIVE", "TOY", "JOYFUL"
         ];
 
         let selectedWord = words[Math.floor(Math.random() * words.length)];
         let guessedWord = Array.from(selectedWord).map(letter => ({ letter, isGuessed: false }));
         let incorrectGuesses = 0;
+        let guessedLetters = new Set();
 
         function renderWord() {
             const wordDisplay = document.getElementById('word-display');
@@ -159,9 +166,11 @@
                 }, 500);
             }
 
+            guessedLetters.add(letter);
             renderWord();
             checkGameStatus();
             updateGuessesLeft();
+            updateGuessedLetters();
         }
 
         function checkGameStatus() {
@@ -180,12 +189,24 @@
             remainingGuessesElement.textContent = Math.max(remainingGuesses, 0);
         }
 
+        function updateGuessedLetters() {
+            const alphabetButtons = document.querySelectorAll('.letter-btn');
+            alphabetButtons.forEach(btn => {
+                const letter = btn.textContent;
+                if (guessedLetters.has(letter)) {
+                    btn.classList.add('guessed');
+                }
+            });
+        }
+
         function resetGame() {
             selectedWord = words[Math.floor(Math.random() * words.length)];
             guessedWord = Array.from(selectedWord).map(letter => ({ letter, isGuessed: false }));
             incorrectGuesses = 0;
+            guessedLetters.clear();
             renderWord();
             updateGuessesLeft();
+            updateGuessedLetters();
         }
 
         renderWord();
