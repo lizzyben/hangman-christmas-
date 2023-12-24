@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christmas Hangman Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            text-align: center;
+        }
+
+        #game-container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            color: #ff6347; /* Tomato color */
+        }
+
+        #word-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            font-size: 24px;
+            margin: 20px 0;
+        }
+
+        .card {
+            width: 60px;
+            height: 80px;
+            background-color: #4caf50; /* Green color */
+            color: #fff;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 5px;
+            transition: transform 0.5s ease-in-out, background-color 0.5s ease-in-out;
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            20%, 40%, 60%, 80% {
+                transform: translateX(-10px);
+            }
+            30%, 50%, 70% {
+                transform: translateX(10px);
+            }
+        }
+
+        .correct {
+            background-color: #ff6347; /* Tomato color */
+            color: #000;
+        }
+
+        #alphabet {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .letter-btn {
+            font-size: 18px;
+            margin: 5px;
+            padding: 10px;
+            background-color: #4caf50; /* Green color */
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        #guesses-left {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Christmas Hangman Game</h1>
+        <div id="word-display"></div>
+        <div id="alphabet"></div>
+        <div id="guesses-left">Guesses left: <span id="remaining-guesses">6</span></div>
+    </div>
+
+    <script>
+        const words = [
+            "SANTA", "REINDEER", "ORNAMENT", "GIFT", "JINGLE", "SNOWFLAKE", "CANDLE",
+            "BELLS", "CHRISTMAS", "DECORATION", "ELF", "MISTLETOE", "NORTHPOLE", "PRESENT",
+            "SNOWMAN", "SLEIGH", "TREE", "WREATH", "FROSTY", "GRINCH", "CHIMNEY", "CAROL",
+            "NUTCRACKER", "COCOA", "LIGHTS", "COOKIE", "SWEATER", "ICICLE", "HOLLY"
+        ];
+
+        let selectedWord = words[Math.floor(Math.random() * words.length)];
+        let guessedWord = Array.from(selectedWord).map(letter => ({ letter, isGuessed: false }));
+        let incorrectGuesses = 0;
+
+        function renderWord() {
+            const wordDisplay = document.getElementById('word-display');
+            wordDisplay.innerHTML = '';
+
+            guessedWord.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.classList.add('card');
+                cardElement.textContent = card.isGuessed ? card.letter : '';
+                if (card.isGuessed) {
+                    cardElement.classList.add('correct');
+                }
+                wordDisplay.appendChild(cardElement);
+            });
+        }
+
+        function renderAlphabet() {
+            const alphabetContainer = document.getElementById('alphabet');
+            const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+            alphabet.split('').forEach(letter => {
+                const btn = document.createElement('button');
+                btn.classList.add('letter-btn');
+                btn.textContent = letter;
+                btn.addEventListener('click', () => handleGuess(letter));
+                alphabetContainer.appendChild(btn);
+            });
+        }
+
+        function handleGuess(letter) {
+            const isCorrect = selectedWord.includes(letter);
+
+            if (isCorrect) {
+                guessedWord.forEach(card => {
+                    if (card.letter === letter) {
+                        card.isGuessed = true;
+                    }
+                });
+            } else {
+                incorrectGuesses++;
+                document.getElementById('word-display').classList.add('shake');
+                setTimeout(() => {
+                    document.getElementById('word-display').classList.remove('shake');
+                }, 500);
+            }
+
+            renderWord();
+            checkGameStatus();
+            updateGuessesLeft();
+        }
+
+        function checkGameStatus() {
+            if (guessedWord.every(card => card.isGuessed)) {
+                alert('Congratulations! You guessed the word: ' + selectedWord);
+                resetGame();
+            } else if (incorrectGuesses >= 6) {
+                alert('Sorry! You ran out of attempts. The correct word was: ' + selectedWord);
+                resetGame();
+            }
+        }
+
+        function updateGuessesLeft() {
+            const remainingGuessesElement = document.getElementById('remaining-guesses');
+            const remainingGuesses = 6 - incorrectGuesses;
+            remainingGuessesElement.textContent = Math.max(remainingGuesses, 0);
+        }
+
+        function resetGame() {
+            selectedWord = words[Math.floor(Math.random() * words.length)];
+            guessedWord = Array.from(selectedWord).map(letter => ({ letter, isGuessed: false }));
+            incorrectGuesses = 0;
+            renderWord();
+            updateGuessesLeft();
+        }
+
+        renderWord();
+        renderAlphabet();
+        updateGuessesLeft();
+    </script>
+</body>
+</html>
